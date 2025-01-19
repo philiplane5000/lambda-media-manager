@@ -5,11 +5,6 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
  * Normalizes a directory prefix string by removing leading/trailing slashes and whitespace
  * @param {string} rawPrefix - The raw prefix string to normalize (e.g., '/folder/', '  folder  ', '///folder///')
  * @returns {string} Normalized prefix with single trailing slash if prefix exists (e.g., 'folder/') or empty string
- * @example
- * _normalizePrefix('/folder/') // returns 'folder/'
- * _normalizePrefix('///folder///') // returns 'folder/'
- * _normalizePrefix('  folder  ') // returns 'folder/'
- * _normalizePrefix('') // returns ''
  */
 const _normalizePrefix = rawPrefix => {
     if (!rawPrefix) return '';
@@ -17,20 +12,28 @@ const _normalizePrefix = rawPrefix => {
     return cleanPrefix ? `${cleanPrefix}/` : '';
 };
 
-let response;
 /**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
+ * Filters S3 objects based on storage class, size, and file extension
+ * @param {Object} object - S3 object metadata
+ * @param {string} object.Key - Object key in S3
+ * @param {number} object.Size - Object size in bytes
+ * @param {string} object.StorageClass - S3 storage class
+ * @param {string} fileExtension - File extension to filter by
+ * @returns {boolean} Whether the object passes all filters
  */
-export const handler = async (event, context) => {
+const _filterS3Objects = ({ Key, Size, StorageClass }, fileExtension) => {
+    return StorageClass !== 'GLACIER' && parseInt(Size) > 0 && Key.endsWith(fileExtension);
+};
+
+let response;
+
+/**
+* Lambda handler for S3 presigned URL generation
+* @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-proxy-integration.html
+* @param {Object} event - API Gateway event
+* @returns {Object} API Gateway response
+*/
+const handler = async event => {
     const BUCKET_NAME = process.env.TARGET_BUCKET_NAME ?? 'philips-glacier';
 
     // Extract query parameters for flexibility
@@ -56,12 +59,10 @@ export const handler = async (event, context) => {
         const { Contents = [] } = await client.send(listCommand);
 
         const presignedUrls = await Promise.all(
-            Contents.filter(({ Key, Size, StorageClass }) => {
-                return StorageClass !== 'GLACIER' && parseInt(Size) > 0 && Key.endsWith(FILE_EXT);
-            }).map(async ({ Key }) => {
+            Contents.filter(object => _filterS3Objects(object, FILE_EXT)).map(async ({ Key }) => {
                 const command = new GetObjectCommand({
                     Bucket: BUCKET_NAME,
-                    Key: Key,
+                    Key,
                 });
 
                 const presignedUrl = await getSignedUrl(client, command, {
@@ -89,3 +90,5 @@ export const handler = async (event, context) => {
 
     return response;
 };
+
+export default handler;
