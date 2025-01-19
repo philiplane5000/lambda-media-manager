@@ -1,6 +1,22 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+/**
+ * Normalizes a directory prefix string by removing leading/trailing slashes and whitespace
+ * @param {string} rawPrefix - The raw prefix string to normalize (e.g., '/folder/', '  folder  ', '///folder///')
+ * @returns {string} Normalized prefix with single trailing slash if prefix exists (e.g., 'folder/') or empty string
+ * @example
+ * _normalizePrefix('/folder/') // returns 'folder/'
+ * _normalizePrefix('///folder///') // returns 'folder/'
+ * _normalizePrefix('  folder  ') // returns 'folder/'
+ * _normalizePrefix('') // returns ''
+ */
+const _normalizePrefix = rawPrefix => {
+    if (!rawPrefix) return '';
+    const cleanPrefix = rawPrefix.trim().replace(/^\/+|\/+$/g, '');
+    return cleanPrefix ? `${cleanPrefix}/` : '';
+};
+
 let response;
 /**
  *
@@ -18,15 +34,14 @@ export const handler = async (event, context) => {
     const BUCKET_NAME = process.env.TARGET_BUCKET_NAME ?? 'philips-glacier';
 
     // Extract query parameters for flexibility
-    const queryParams = event.queryStringParameters || {};
+    const queryParams = event.queryStringParameters ?? {};
     const {
         prefix = '', // Optional subdirectory
         max = 50, // Default number of items
-        fileExtension = '', // TODO: explore usage of mime type instead?
-        // nextToken, // For pagination
+        fileExtension = '',
     } = queryParams;
 
-    const SUB_DIRECTORY = prefix !== '' ? `${prefix}/` : '';
+    const SUB_DIRECTORY = _normalizePrefix(prefix);
     const FILE_EXT = fileExtension;
 
     try {
@@ -43,7 +58,7 @@ export const handler = async (event, context) => {
         const presignedUrls = await Promise.all(
             Contents.filter(({ Key, Size, StorageClass }) => {
                 return StorageClass !== 'GLACIER' && parseInt(Size) > 0 && Key.endsWith(FILE_EXT);
-            }).map(async ({ Key, Size, StorageClass }) => {
+            }).map(async ({ Key }) => {
                 const command = new GetObjectCommand({
                     Bucket: BUCKET_NAME,
                     Key: Key,
