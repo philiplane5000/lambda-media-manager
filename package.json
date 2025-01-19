@@ -1,0 +1,12 @@
+{
+  "name": "s3-fetch-api",
+  "version": "1.0.0",
+  "description": "Media Manager Lamba deployed via AWS SAM",
+  "license": "ISC",
+  "author": "Philip Lane",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
