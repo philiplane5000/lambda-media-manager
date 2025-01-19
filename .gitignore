@@ -16,6 +16,9 @@
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
+# aws-sam builds
+.aws-sam*
+
 ### Node ###
 # Logs
 logs
@@ -74,10 +77,9 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# environment variables file/(s)
 .env
 env.json
-
 
 ### OSX ###
 *.DS_Store

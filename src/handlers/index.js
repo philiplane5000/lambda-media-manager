@@ -50,7 +50,7 @@ export const handler = async (event, context) => {
                 });
 
                 const presignedUrl = await getSignedUrl(client, command, {
-                    expiresIn: 3600 * 12, // 3600 = 1hr
+                    expiresIn: 3600 * 6, // 3600 = 1hr
                 });
 
                 return {
