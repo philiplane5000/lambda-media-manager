@@ -1,0 +1,13 @@
+{
+  "name": "presigned",
+  "version": "1.0.0",
+  "description": "Main handler for Media Manager Stack",
+  "main": "index.js",
+  "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
+  "author": "Philip Lane",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.731.1",
+    "@aws-sdk/s3-request-presigner": "^3.731.1"
+  }
+}

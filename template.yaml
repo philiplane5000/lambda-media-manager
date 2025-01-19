@@ -17,6 +17,15 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
+  MediaManagerLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: media-manager-layer
+      Description: Dependencies for Media Manager Function
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - nodejs22.x        
+
   MediaManagerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -25,6 +34,8 @@ Resources:
       Runtime: nodejs22.x
       Architectures:
         - x86_64
+      Layers:
+        - !Ref MediaManagerLayer
       Environment:
         Variables:
           TARGET_BUCKET_NAME: !Ref SharedMediaBucket
@@ -37,15 +48,6 @@ Resources:
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref SharedMediaBucket
-      # Policies:
-      #   - Statement:
-      #       - Effect: Allow
-      #         Action:
-      #           - s3:ListBucket
-      #           - s3:GetObject
-      #         Resource:
-      #           - arn:aws:s3:::galactic-media-cache
-      #           - arn:aws:s3:::galactic-media-cache/*
 
 Outputs:
   MediaManagerApi:
@@ -60,3 +62,6 @@ Outputs:
   SharedMediaBucketName:
     Description: 'Name of the created S3 bucket'
     Value: !Ref SharedMediaBucket
+  MediaManagerLayer:
+    Description: 'Layer/dependencies for Media Manager Function'
+    Value: !Ref MediaManagerLayer
