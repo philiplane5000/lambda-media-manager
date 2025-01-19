@@ -1,5 +1,5 @@
 {
-  "name": "s3-fetch-api",
+  "name": "lambda-media-manager",
   "version": "1.0.0",
   "description": "Media Manager Lamba deployed via AWS SAM",
   "license": "ISC",
