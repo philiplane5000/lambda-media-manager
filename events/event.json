@@ -3,12 +3,12 @@
     "path": "/presigned",
     "httpMethod": "GET",
     "queryStringParameters": {
-        "prefix": "media",
+        "prefix": "",
         "max": "10",
         "fileExtension": ".mp4"
     },
     "multiValueQueryStringParameters": {
-        "prefix": ["media"],
+        "prefix": [""],
         "max": ["10"],
         "fileExtension": [".mp4"]
     },

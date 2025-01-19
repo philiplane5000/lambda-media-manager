@@ -12,7 +12,7 @@
         "deploy": "sam deploy",
         "deploy:guided": "sam deploy --guided",
         "start": "sam local start-api --env-vars env.json",
-        "start:debug": "sam local start-api --env-vars env.json --debug",
+        "start:debug": "sam local start-api --env-vars env.json --debug --log-file lambda.log",
         "clean": "rm -rf .aws-sam",
         "lint": "eslint . --ext .js",
         "lint:fix": "eslint . --ext .js --fix",
