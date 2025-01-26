@@ -24,7 +24,7 @@ Resources:
       Description: Dependencies for Media Manager Function
       ContentUri: dependencies/
       CompatibleRuntimes:
-        - nodejs22.x        
+        - nodejs22.x
 
   MediaManagerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -40,10 +40,22 @@ Resources:
         Variables:
           TARGET_BUCKET_NAME: !Ref SharedMediaBucket
       Events:
-        MediaManager:
+        ListMedia:
+          Type: Api
+          Properties:
+            Path: /media
+            Method: get
+            RequestParameters:
+              - method.request.querystring.prefix:
+                  Required: false
+                  Caching: true
+              - method.request.querystring.limit:
+                  Required: false
+                  Caching: true
+        Media:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /presigned
+            Path: /media/{key}
             Method: get
       Policies:
         - S3CrudPolicy:
