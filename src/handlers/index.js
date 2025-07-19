@@ -66,7 +66,7 @@ const listMedia = async event => {
  */
 const getMedia = async event => {
     // TODO: Implement request validators in API Gateway
-    const EXPIRES_IN = 3600; // 1 hour
+    const EXPIRES_IN = 3600 * 24; // 24 hours
     const { key } = event.pathParameters;
 
     try {
