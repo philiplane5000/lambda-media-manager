@@ -116,6 +116,10 @@ const handler = async event => {
 
         return {
             statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': 'https://vault.philiplane.io',
+                'Access-Control-Allow-Methods': 'GET',
+            },
             body: JSON.stringify({ message: 'success', ...result }),
         };
     } catch (err) {
